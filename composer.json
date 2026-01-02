@@ -1,0 +1,21 @@
+{
+    "name": "mmpay/mmpay-php-sdk",
+    "description": "PHP SDK for MMPay Integration",
+    "type": "library",
+    "require": {
+        "php": ">=7.4",
+        "guzzlehttp/guzzle": "^7.0",
+        "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "MMPay\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Your Name",
+            "email": "your@email.com"
+        }
+    ]
+}
