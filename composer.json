@@ -1,6 +1,6 @@
 {
-    "name": "mmpay/mmpay-php-sdk",
-    "description": "PHP SDK for MMPay Integration",
+    "name": "myanmyanpay/mmpay-php-sdk",
+    "description": "PHP SDK for MyanMyanPay Integration",
     "type": "library",
     "require": {
         "php": ">=7.4",

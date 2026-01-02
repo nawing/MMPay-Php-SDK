@@ -9,7 +9,7 @@ Requires PHP 7.4 or higher.
 Install the package via Composer:
 
 ```bash
-composer require your-vendor-name/mmpay-php-sdk
+composer require myanmyanpay/mmpay-php-sdk
 ```
 
 ## 🚀 Configuration
