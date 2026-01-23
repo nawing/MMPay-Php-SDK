@@ -88,7 +88,12 @@ class MMPay
             return $data;
 
         } catch (GuzzleException $e) {
-            throw new \Exception($e->getMessage());
+            // Extract response body if available for better debugging
+            $msg = $e->getMessage();
+            if ($e->hasResponse()) {
+                $msg .= " Details: " . (string) $e->getResponse()->getBody();
+            }
+            throw new \Exception($msg);
         }
     }
 
@@ -100,20 +105,25 @@ class MMPay
         $endpoint = '/payments/sandbox-create';
         $nonce = $this->getNonce();
 
-        // Construct payload structure strictly
-        $xpayload = [
-            'appId'   => $this->appId,
-            'nonce'   => $nonce,
-            'amount'  => $params['amount'],
-            'orderId' => $params['orderId'],
-            'items'   => $params['items'],
-        ];
-        
+        // 1. Initialize strictly ordered array
+        $xpayload = [];
+        $xpayload['appId']   = $this->appId;
+        $xpayload['nonce']   = $nonce;
+        $xpayload['amount']  = $params['amount'];
+        $xpayload['orderId'] = $params['orderId'];
+
+        // 2. Add optionals in the EXACT order expected by the server
         if (isset($params['callbackUrl'])) {
             $xpayload['callbackUrl'] = $params['callbackUrl'];
         }
-        if (isset($params['currency'])) {
-            $xpayload['currency'] = $params['currency'];
+
+        if (isset($params['customMessage'])) {
+            $xpayload['customMessage'] = $params['customMessage'];
+        }
+        
+        // In Node SDK, items comes after customMessage
+        if (isset($params['items'])) {
+            $xpayload['items'] = $params['items'];
         }
 
         $bodyString = $this->jsonStringify($xpayload);
@@ -121,8 +131,8 @@ class MMPay
 
         // Perform handshake first
         $this->sandboxHandShake([
-            'orderId' => $xpayload['orderId'], 
-            'nonce'   => $xpayload['nonce']
+            'orderId' => (string) $xpayload['orderId'], 
+            'nonce'   => (string) $xpayload['nonce']
         ]);
 
         try {
@@ -140,7 +150,11 @@ class MMPay
             return json_decode($response->getBody(), true);
 
         } catch (GuzzleException $e) {
-            throw new \Exception($e->getMessage());
+            $msg = $e->getMessage();
+            if ($e->hasResponse()) {
+                $msg .= " Details: " . (string) $e->getResponse()->getBody();
+            }
+            throw new \Exception($msg);
         }
     }
 
@@ -175,7 +189,11 @@ class MMPay
             return $data;
 
         } catch (GuzzleException $e) {
-            throw new \Exception($e->getMessage());
+            $msg = $e->getMessage();
+            if ($e->hasResponse()) {
+                $msg .= " Details: " . (string) $e->getResponse()->getBody();
+            }
+            throw new \Exception($msg);
         }
     }
 
@@ -187,19 +205,24 @@ class MMPay
         $endpoint = '/payments/create';
         $nonce = $this->getNonce();
 
-        $xpayload = [
-            'appId'   => $this->appId,
-            'nonce'   => $nonce,
-            'amount'  => $params['amount'],
-            'orderId' => $params['orderId'],
-            'items'   => $params['items'],
-        ];
+        // 1. Initialize strictly ordered array
+        $xpayload = [];
+        $xpayload['appId']   = $this->appId;
+        $xpayload['nonce']   = $nonce;
+        $xpayload['amount']  = $params['amount'];
+        $xpayload['orderId'] = $params['orderId'];
 
+        // 2. Add optionals in order
         if (isset($params['callbackUrl'])) {
             $xpayload['callbackUrl'] = $params['callbackUrl'];
         }
-        if (isset($params['currency'])) {
-            $xpayload['currency'] = $params['currency'];
+        
+        if (isset($params['customMessage'])) {
+            $xpayload['customMessage'] = $params['customMessage'];
+        }
+
+        if (isset($params['items'])) {
+            $xpayload['items'] = $params['items'];
         }
 
         $bodyString = $this->jsonStringify($xpayload);
@@ -207,8 +230,8 @@ class MMPay
 
         // Perform handshake
         $this->handShake([
-            'orderId' => $xpayload['orderId'], 
-            'nonce'   => $xpayload['nonce']
+            'orderId' => (string) $xpayload['orderId'], 
+            'nonce'   => (string) $xpayload['nonce']
         ]);
 
         try {
@@ -226,7 +249,11 @@ class MMPay
             return json_decode($response->getBody(), true);
 
         } catch (GuzzleException $e) {
-            throw new \Exception($e->getMessage());
+            $msg = $e->getMessage();
+            if ($e->hasResponse()) {
+                $msg .= " Details: " . (string) $e->getResponse()->getBody();
+            }
+            throw new \Exception($msg);
         }
     }
 

@@ -5,6 +5,7 @@
     "require": {
         "php": ">=7.4",
         "guzzlehttp/guzzle": "^7.0",
+        "vlucas/phpdotenv": "^5.0",
         "ext-json": "*"
     },
     "autoload": {
@@ -14,8 +15,8 @@
     },
     "authors": [
         {
-            "name": "Your Name",
-            "email": "your@email.com"
+            "name": "Naw Ing",
+            "email": "nawing@myanmyanpay.com"
         }
     ]
 }
