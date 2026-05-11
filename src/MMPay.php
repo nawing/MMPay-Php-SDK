@@ -158,6 +158,46 @@ class MMPay
         }
     }
 
+    public function sandboxGet(array $params)
+    {
+        $endpoint = '/payments/sandbox-get';
+        $nonce = $this->getNonce();
+
+        $xpayload = [];
+        $xpayload['orderId'] = $params['orderId'];
+        $xpayload['nonce']   = $nonce;
+
+        $bodyString = $this->jsonStringify($xpayload);
+        $signature = $this->generateSignature($bodyString, $nonce);
+
+        $this->sandboxHandShake([
+            'orderId' => (string) $xpayload['orderId'], 
+            'nonce'   => (string) $xpayload['nonce']
+        ]);
+
+        try {
+            $response = $this->client->post($endpoint, [
+                'headers' => [
+                    'Authorization'     => 'Bearer ' . $this->publishableKey,
+                    'X-Mmpay-Btoken'    => $this->btoken,
+                    'X-Mmpay-Nonce'     => $nonce,
+                    'X-Mmpay-Signature' => $signature,
+                    'Content-Type'      => 'application/json',
+                ],
+                'body' => $bodyString
+            ]);
+
+            return json_decode($response->getBody(), true);
+
+        } catch (GuzzleException $e) {
+            $msg = $e->getMessage();
+            if ($e->hasResponse()) {
+                $msg .= " Details: " . (string) $e->getResponse()->getBody();
+            }
+            throw new \Exception($msg);
+        }
+    }
+
     // --- Production Methods ---
 
     /**
@@ -229,6 +269,46 @@ class MMPay
         $signature = $this->generateSignature($bodyString, $nonce);
 
         // Perform handshake
+        $this->handShake([
+            'orderId' => (string) $xpayload['orderId'], 
+            'nonce'   => (string) $xpayload['nonce']
+        ]);
+
+        try {
+            $response = $this->client->post($endpoint, [
+                'headers' => [
+                    'Authorization'     => 'Bearer ' . $this->publishableKey,
+                    'X-Mmpay-Btoken'    => $this->btoken,
+                    'X-Mmpay-Nonce'     => $nonce,
+                    'X-Mmpay-Signature' => $signature,
+                    'Content-Type'      => 'application/json',
+                ],
+                'body' => $bodyString
+            ]);
+
+            return json_decode($response->getBody(), true);
+
+        } catch (GuzzleException $e) {
+            $msg = $e->getMessage();
+            if ($e->hasResponse()) {
+                $msg .= " Details: " . (string) $e->getResponse()->getBody();
+            }
+            throw new \Exception($msg);
+        }
+    }
+
+    public function get(array $params)
+    {
+        $endpoint = '/payments/get';
+        $nonce = $this->getNonce();
+
+        $xpayload = [];
+        $xpayload['orderId'] = $params['orderId'];
+        $xpayload['nonce']   = $nonce;
+
+        $bodyString = $this->jsonStringify($xpayload);
+        $signature = $this->generateSignature($bodyString, $nonce);
+
         $this->handShake([
             'orderId' => (string) $xpayload['orderId'], 
             'nonce'   => (string) $xpayload['nonce']

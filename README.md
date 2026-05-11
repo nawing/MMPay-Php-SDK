@@ -105,10 +105,7 @@ try {
             ['name' => 'E-Commerce Item', 'amount' => 10000, 'quantity' => 1]
         ]
     ];
-
     $response = $sdk->pay($params);
-    
-    // Redirect user to the payment URL provided in the response
     if (isset($response['url'])) {
         header('Location: ' . $response['url']);
         exit;
@@ -121,7 +118,44 @@ try {
 
 ---
 
-### 3. Verify Webhook (Callback)
+### 3. Get a Transaction
+
+For sandbox transactions, switch to the `sandboxGet` method.
+```php
+try {
+    $params = [
+        'orderId'     => 'ORD-LIVE-888'
+    ];
+    $response = $sdk->sandboxGet($params);
+    if (isset($response['url'])) {
+        header('Location: ' . $response['url']);
+        exit;
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}
+```
+
+
+For live transactions, switch to the `get` method.
+```php
+try {
+    $params = [
+        'orderId'     => 'ORD-LIVE-888'
+    ];
+    $response = $sdk->get($params);
+    if (isset($response['url'])) {
+        header('Location: ' . $response['url']);
+        exit;
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}
+```
+
+---
+
+### 4. Verify Webhook (Callback)
 
 Secure your application by verifying the cryptographic signature of incoming webhooks. This ensures the request actually came from MMPay.
 
