@@ -99,10 +99,14 @@ For live transactions, switch to the `pay` method.
 ```php
 try {
     $params = [
-        'orderId'     => 'ORD-LIVE-888',
-        'amount'      => 10000,
-        'items'       => [
-            ['name' => 'E-Commerce Item', 'amount' => 10000, 'quantity' => 1]
+        'orderId'   => 'ORD-LIVE-888',
+        'amount'    => 10000,
+        'items'     => [
+            [
+                'name'      => 'E-Commerce Item', 
+                'amount'    => 10000, 
+                'quantity'  => 1
+            ]
         ]
     ];
     $response = $sdk->pay($params);
