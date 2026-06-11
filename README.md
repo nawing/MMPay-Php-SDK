@@ -12,12 +12,14 @@ Install the package via Composer:
 composer require myanmyanpay/mmpay-php-sdk
 ```
 
+---
+
+
 ## 🚀 2. Configuration
 
 To start, initialize the SDK with your Merchant credentials found in the MMPay Dashboard.
 
-
-#### **Implementation**
+**Implementation**
 
 ```php
 use MMPay\MMPay;
@@ -32,7 +34,7 @@ $options = [
 $mmpayx = new MMPay($options);
 ```
 
-### Configuration Parameters
+**Configuration Parameters**
 
 | Parameter | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
@@ -41,18 +43,20 @@ $mmpayx = new MMPay($options);
 | `secretKey` | `string` | **Yes** | Private key used for HMAC SHA256 signing. |
 | `apiBaseUrl` | `string` | **Yes** | The base URL for the MMPay API. |
 
+
 ---
 
 
 ## 🛠 3. Create a Payment
+
 `pay` This method automatically handles the required handshake and signature generation.
 
-#### **Method Signature**
+**Method Signature**
 ```php
 $mmpayx->pay($payload);
 ```
 
-#### **Implementation**
+**Implementation**
 ```php
 try {
     $payload = [
@@ -78,10 +82,7 @@ try {
 }
 ```
 
-
-### Request Body (`payload` structure)
-
-The request body should be a JSON object containing the transaction details.
+**Request Body** (`payload` structure)
 
 | Field | Type | Required | Description | Example |
 | :--- | :--- | :--- | :--- | :--- |
@@ -92,7 +93,7 @@ The request body should be a JSON object containing the transaction details.
 | **`customMessage`**   | `string` | No         | Your Customization String |
 | **`items`**           | `Array<Object>` | No  | List of items included in the purchase. | `[{name: "Hat", amount: 1000, quantity: 1}]` |
 
-#### `items` Object Structure
+**Item Object**
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
@@ -101,7 +102,7 @@ The request body should be a JSON object containing the transaction details.
 | **`quantity`** | `number` | The number of units purchased. |
 
 
-### Successful Response (`201`) Example
+**Response Body** Code (`201`)
 
 ```json
 {
@@ -115,19 +116,19 @@ The request body should be a JSON object containing the transaction details.
 }
 ```
 
-
 ---
 
 
 ## 🛠 4. Retrieve Payment
+
 This method is used to retrieve a payment and MMQR related events.
 
-#### **Method Signature**
+**Method Signature**
 ```php
 $mmpayx->get($payload);
 ```
 
-#### **Implementation**
+**Implementation**
 ```php
 try {
     $payload = [
@@ -143,15 +144,13 @@ try {
 }
 ```
 
-### Request Body (`payload` structure)
-
-The request body should be a JSON object containing the transaction details.
+**Request Body** (`payload` structure)
 
 | Field | Type | Required | Description | Example |
 | :--- | :--- | :--- | :--- | :--- |
 | **`orderId`**         | `string` | **Yes**    | Your generated order ID for the order or system initiating the payment. | `"ORD-3983833"` |
 
-### Response Body
+**Response Body** Code (`200`)
 
 ```json
 {
@@ -178,14 +177,15 @@ The request body should be a JSON object containing the transaction details.
 ---
 
 ## 🛠 5. Cancel Payment
+
 This method is used to cancel a payment and all of its MMQR releated instances
 
-#### **Method Signature**
+**Method Signature**
 ```php
 $mmpayx->cancel($payload);
 ```
 
-#### **Implementation**
+**Implementation**
 ```php
 try {
     $payload = [
@@ -201,15 +201,14 @@ try {
 }
 ```
 
-### Request Body (`payload` structure)
-
-The request body should be a JSON object containing the transaction details.
+**Request Body** (`payload` structure)
 
 | Field | Type | Required | Description | Example |
 | :--- | :--- | :--- | :--- | :--- |
 | **`orderId`**         | `string` | **Yes**    | Your generated order ID for the order or system initiating the payment. | `"ORD-3983833"` |
 
-### Response Body
+
+**Response Body** Code (`200`)
 
 ```json
 {
@@ -220,10 +219,12 @@ The request body should be a JSON object containing the transaction details.
 }
 ```
 
+
 ---
 
 
 ## 🔐 6. Handling Webhooks
+
 To secure your webhook endpoint that receives callbacks from the MMPay server, use this event listener to handle the events.
 The **listen** performs the mandatory Signature and Nonce verification and emits events
 
@@ -255,7 +256,7 @@ Body
 | **callbackUrl**       | `string` | No | Optional URL to receive webhooks or updates. |
 | **customMessage**     | `string` | No | User provided custom message |
 
-#### Laravel Controller Example
+**Example Implementation With Laravel**
 
 In Laravel, you should use the `Request` object to fetch headers and the raw content.
 
