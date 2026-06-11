@@ -319,7 +319,7 @@ class PaymentWebhookController extends Controller
 
 ---
 
-## ⚠️ Error Handling
+## ⚠️ 7. Error Handling
 
 The mmpayx throws standard PHP `\Exception` when errors occur (e.g., network issues, API validation errors, or handshake failures).
 
@@ -337,9 +337,10 @@ try {
 
 ---
 
-## 7. Error Codes
+## ⚠️ 8. Error Codes
 
-##### Api Key Layer Authentication [SERVER SDK]
+**HMac Layer (SERVER Side)**
+
 | Code | Description |
 | :--- | :--- |
 | **`KA0001`** | Bearer Token Not Included In Your Request |
@@ -350,7 +351,8 @@ try {
 | **`429`** | Ratelimit hit only 1000 request / minute allowed |
 
 
-##### JWT Layer Authentication [SERVER SDK]
+**JWT Layer (SERVER Side)**
+
 | Code | Description |
 | :--- | :--- |
 | **`BA001`** | `Btoken` is nonce one time token is not included |
@@ -359,7 +361,8 @@ try {
 | **`429`**   | Ratelimit hit only 1000 request / minute allowed |
 
 
-### Response Codes
+**Response Codes**
+
 
 | Code | Status | Description |
 | :--- | :--- | :--- |
