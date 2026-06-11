@@ -2,7 +2,7 @@
 
 A professional, comprehensive PHP client library for integrating with the MMPay Payment Gateway. This SDK mimics the official Node.js SDK structure, providing robust utilities for payment creation, handshake authentication, and secure webhook verification.
 
-## 📦 Installation
+## 📦 1. Installation
 
 Requires PHP 7.4 or higher.
 
@@ -12,9 +12,12 @@ Install the package via Composer:
 composer require myanmyanpay/mmpay-php-sdk
 ```
 
-## 🚀 Configuration
+## 🚀 2. Configuration
 
 To start, initialize the SDK with your Merchant credentials found in the MMPay Dashboard.
+
+
+#### **Implementation**
 
 ```php
 use MMPay\MMPay;
@@ -26,7 +29,7 @@ $options = [
     'apiBaseUrl'     => '[https://api.mmpay.com](https://api.mmpay.com)'
 ];
 
-$sdk = new MMPay($options);
+$mmpayx = new MMPay($options);
 ```
 
 ### Configuration Parameters
@@ -40,15 +43,19 @@ $sdk = new MMPay($options);
 
 ---
 
-## 🛠 Usage
 
-### 1. Create a Payment (Sandbox)
+## 🛠 3. Create a Payment
+`pay` This method automatically handles the required handshake and signature generation.
 
-Use `sandboxPay` for testing. This method automatically handles the required handshake and signature generation.
+#### **Method Signature**
+```php
+$mmpayx->pay($payload);
+```
 
+#### **Implementation**
 ```php
 try {
-    $params = [
+    $payload = [
         'orderId'       => 'ORD-SANDBOX-001',
         'amount'        => 5000,
         'currency'      => 'MMK',
@@ -63,7 +70,7 @@ try {
         ]
     ];
 
-    $response = $sdk->sandboxPay($params);
+    $response = $mmpayx->pay($payload);
     print_r($response);
 
 } catch (Exception $e) {
@@ -71,66 +78,62 @@ try {
 }
 ```
 
-#### Parameters: `sandboxPay` / `pay`
 
-| Parameter | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `orderId` | `string` | **Yes** | Unique identifier for this order. |
-| `amount` | `number` | **Yes** | Total transaction amount. |
-| `items` | `array` | **Yes** | Array of item objects (see structure below). |
-| `currency` | `string` | No | Currency code (e.g., "MMK"). |
-| `callbackUrl` | `string` | No | URL where the webhook result will be posted. |
-| `customMessage` | `string` | No | A custom message to display on the payment page. |
+### Request Body (`payload` structure)
 
-#### Structure: `items` (Array of Objects)
+The request body should be a JSON object containing the transaction details.
 
-| Key | Type | Required | Description |
-| :--- | :--- | :--- | :--- |
-| `name` | `string` | **Yes** | Name of the product or service. |
-| `amount` | `number` | **Yes** | Cost per unit. |
-| `quantity` | `integer`| **Yes** | Number of units. |
+| Field | Type | Required | Description | Example |
+| :--- | :--- | :--- | :--- | :--- |
+| **`orderId`**         | `string` | **Yes**    | Your generated order ID for the order or system initiating the payment. | `"ORD-3983833"` |
+| **`amount`**          | `number` | **Yes**    | The total transaction amount. | `1500.50` |
+| **`callbackUrl`**     | `string` | No         | The URL where the payment gateway will send transaction status updates. | `"https://yourserver.com/webhook"` |
+| **`currency`**        | `string` | No         | The currency code (e.g., `'MMK'`). | `"MMK"` |
+| **`customMessage`**   | `string` | No         | Your Customization String |
+| **`items`**           | `Array<Object>` | No  | List of items included in the purchase. | `[{name: "Hat", amount: 1000, quantity: 1}]` |
 
----
+#### `items` Object Structure
 
-### 2. Create a Payment (Production)
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| **`name`** | `string` | The name of the item. |
+| **`amount`** | `number` | The unit price of the item. |
+| **`quantity`** | `number` | The number of units purchased. |
 
-For live transactions, switch to the `pay` method.
 
-```php
-try {
-    $params = [
-        'orderId'   => 'ORD-LIVE-888',
-        'amount'    => 10000,
-        'items'     => [
-            [
-                'name'      => 'E-Commerce Item', 
-                'amount'    => 10000, 
-                'quantity'  => 1
-            ]
-        ]
-    ];
-    $response = $sdk->pay($params);
-    if (isset($response['url'])) {
-        header('Location: ' . $response['url']);
-        exit;
-    }
+### Successful Response (`201`) Example
 
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
+```json
+{
+  "orderId": "_trx_0012345",
+  "status": "PENDING",
+  "vendorQrRefId": "39233043003345",
+  "transactionRefId": "39233043003345", // This is deprecated - transactionRefId will show only after payment is confirmed
+  "amount": 2800,
+  "currency": "MMK",
+  "qr": "EMVco MMQR String => You_have_to_embed_as_qr_image_yourself"
 }
 ```
 
+
 ---
 
-### 3. Get a Transaction
 
-For sandbox transactions, switch to the `sandboxGet` method.
+## 🛠 4. Retrieve Payment
+This method is used to retrieve a payment and MMQR related events.
+
+#### **Method Signature**
+```php
+$mmpayx->get($payload);
+```
+
+#### **Implementation**
 ```php
 try {
-    $params = [
+    $payload = [
         'orderId'     => 'ORD-LIVE-888'
     ];
-    $response = $sdk->sandboxGet($params);
+    $response = $mmpayx->get($payload);
     if (isset($response['url'])) {
         header('Location: ' . $response['url']);
         exit;
@@ -140,29 +143,89 @@ try {
 }
 ```
 
+### Request Body (`payload` structure)
 
-For live transactions, switch to the `get` method.
-```php
-try {
-    $params = [
-        'orderId'     => 'ORD-LIVE-888'
-    ];
-    $response = $sdk->get($params);
-    if (isset($response['url'])) {
-        header('Location: ' . $response['url']);
-        exit;
-    }
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
+The request body should be a JSON object containing the transaction details.
+
+| Field | Type | Required | Description | Example |
+| :--- | :--- | :--- | :--- | :--- |
+| **`orderId`**         | `string` | **Yes**    | Your generated order ID for the order or system initiating the payment. | `"ORD-3983833"` |
+
+### Response Body
+
+```json
+{
+  "orderId": "ORD-111111111",
+  "appId": "MMP3883483",
+  "amount": 1000,
+  "vendor": "KBZPay",
+  "method": "QR",
+  "customMessage": "",
+  "callbackUrl": "",
+  "callbackUrlAt": "JSDateObject",
+  "callbackUrlStatus": "SUCCESS",
+  "status": "SUCCESS", //  'PENDING' | 'SUCCESS' | 'FAILED' | 'REFUNDED' | 'CANCELLED' | 'EXPIRED';
+  "disbursementId": "289348734939",
+  "disStatus": "SUCCESS",
+  "condition": "TOUCHED", // TOUCHED | 'PRISTINE' | 'DIRTY' | 'EXPIRED'
+  "createdAt": "JSDateObject",
+  "transactionRefId": "939583046594",
+  "vendorQrRefId": "48309449034",
+  "qr": "EMVCo QR String::MMQR Standard",
 }
 ```
 
 ---
 
-### 4. Verify Webhook (Callback)
+## 🛠 5. Cancel Payment
+This method is used to cancel a payment and all of its MMQR releated instances
 
-Secure your application by verifying the cryptographic signature of incoming webhooks. This ensures the request actually came from MMPay.
+#### **Method Signature**
+```php
+$mmpayx->cancel($payload);
+```
 
+#### **Implementation**
+```php
+try {
+    $payload = [
+        'orderId'     => 'ORD-LIVE-888'
+    ];
+    $response = $mmpayx->cancel($payload);
+    if (isset($response['url'])) {
+        header('Location: ' . $response['url']);
+        exit;
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage();
+}
+```
+
+### Request Body (`payload` structure)
+
+The request body should be a JSON object containing the transaction details.
+
+| Field | Type | Required | Description | Example |
+| :--- | :--- | :--- | :--- | :--- |
+| **`orderId`**         | `string` | **Yes**    | Your generated order ID for the order or system initiating the payment. | `"ORD-3983833"` |
+
+### Response Body
+
+```json
+{
+  "amount": 1000,
+  "orderId": "ORD-111111111",
+  "status": "CANCELLED",
+  "vendorQrRefId": "289348734939",
+}
+```
+
+---
+
+
+## 🔐 6. Handling Webhooks
+To secure your webhook endpoint that receives callbacks from the MMPay server, use this event listener to handle the events.
+The **listen** performs the mandatory Signature and Nonce verification and emits events
 
 **Handling callbacks**
 
@@ -185,48 +248,12 @@ Body
 | **currency**          | `string` | Yes | The 3-letter currency code (e.g., MMK, USD). |
 | **vendor**            | `string` | Yes | Identifier for the vendor initiating the request. |
 | **method**            | `'QR', 'PIN', 'PWA', 'CARD'`  | Yes | Identifier for the method. |
-| **status**            | `'PENDING','SUCCESS','FAILED','REFUNDED'` | Yes | Current status of the transaction. |
-| **condition**         | `'PRESTINE', 'TOUCHED'`  | Yes | Used QR Code scan again or not |
-| **transactionRefId**  | `string` | Yes | The reference ID generated by the payment provider. |
+| **status**            | `'PENDING','SUCCESS','FAILED','REFUNDED', 'EXPIRED', 'CANCELLED'` | Yes | Current status of the transaction. |
+| **condition**         | `'PRESTINE', 'TOUCHED', 'EXPIRED', 'DIRTY'`  | Yes | Used QR Code scan again or not |
+| **transactionRefId**  | `string` | Yes | The reference ID generated by the payment provider after success payment |
+| **vendorQrRefId**     | `string` | Yes | The MMQR reference ID generated by the payment provider. |
 | **callbackUrl**       | `string` | No | Optional URL to receive webhooks or updates. |
 | **customMessage**     | `string` | No | User provided custom message |
-
-#### Pure PHP Example
-
-```php
-// 1. Capture the raw POST body (Required for signature check)
-$payload = file_get_contents('php://input');
-
-// 2. Capture Headers
-$headers = getallheaders(); 
-$nonce = $headers['X-Mmpay-Nonce'] ?? '';
-$signature = $headers['X-Mmpay-Signature'] ?? '';
-
-// 3. Verify
-try {
-    $isValid = $sdk->verifyCb($payload, $nonce, $signature);
-
-    if ($isValid) {
-        // ✅ Signature matched. Process the order.
-        $data = json_decode($payload, true);
-        $status = $data['status']; 
-        
-        if ($status === 'SUCCESS') {
-            // Mark order as paid in DB
-        }
-        
-        http_response_code(200);
-        echo "OK";
-    } else {
-        // ❌ Signature mismatch. Potential fraud.
-        http_response_code(400);
-        echo "Invalid Signature";
-    }
-} catch (Exception $e) {
-    http_response_code(400);
-    echo "Error: " . $e->getMessage();
-}
-```
 
 #### Laravel Controller Example
 
@@ -237,71 +264,63 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use MMPay\MMPay;
-use Illuminate\Support\Facades\Log;
 
-class PaymentController extends Controller
+class PaymentWebhookController extends Controller
 {
-    public function handleWebhook(Request $request)
+    public function handle(Request $request)
     {
-        // Initialize SDK (Preferably via Service Provider or Config)
-        $sdk = new MMPay([
-            'appId'          => config('services.mmpay.app_id'),
-            'publishableKey' => config('services.mmpay.key'),
-            'secretKey'      => config('services.mmpay.secret'),
-            'apiBaseUrl'     => config('services.mmpay.url'),
+        $mmpayx = new MMPay([
+            'appId' => config('services.mmpay.app_id'),
+            'publishableKey' => config('services.mmpay.publish_key'),
+            'secretKey' => config('services.mmpay.secret_key'),
+            'apiBaseUrl' => 'https://api.myanmyanpay.com'
         ]);
 
-        // 1. Get Raw Content (Crucial for signature verification)
-        $payload = $request->getContent();
+        $mmpayx->onTxCreate(function ($tx) {
+            \Log::info("Payment Created for order: " . $tx['orderId']);
+            // Verify Source of truth here if you are using browser mmpayx showPaymentModal()
+        });
 
-        // 2. Get Headers
+        // Attach listeners
+        $mmpayx->onTxSuccess(function ($tx) {
+            // Update your database order status here
+            \Log::info("Payment Successful for order: " . $tx['orderId']);
+        });
+
+        $mmpayx->onTxFail(function ($tx) {
+            \Log::error("Payment Failed for order: " . $tx['orderId']);
+        });
+
+        $mmpayx->onTxCancel(function ($tx) {
+            \Log::info("Payment Cancelled for order: " . $tx['orderId']);
+        });
+
+        $mmpayx->onTxExpire(function ($tx) {
+            \Log::info("Payment Expired for order: " . $tx['orderId']);
+        });
+
+        $mmpayx->onHeartbeat(function ($tx) {
+            \Log::info("Already Sent Event Coming in Again: " . $tx['orderId']);
+        });
+
+        // Get headers and raw body
         $nonce = $request->header('X-Mmpay-Nonce');
         $signature = $request->header('X-Mmpay-Signature');
+        $payload = $request->getContent();
 
-        if (!$nonce || !$signature) {
-            return response()->json(['message' => 'Missing Signature Headers'], 400);
-        }
+        // Listen triggers the events
+        $mmpayx->listen($payload, $nonce, $signature);
 
-        // 3. Verify Signature
-        try {
-            $isValid = $sdk->verifyCb($payload, $nonce, $signature);
-
-            if (!$isValid) {
-                Log::warning('MMPay Webhook Signature Mismatch', ['ip' => $request->ip()]);
-                return response()->json(['message' => 'Invalid Signature'], 400);
-            }
-
-            // ✅ Signature Valid - Process Logic
-            $data = json_decode($payload, true);
-            
-            if ($data['status'] === 'SUCCESS' && $data['condition'] === 'PRESTINE') {
-                // Update Order Status in Database
-                // Order::where('order_id', $data['orderId'])->update(['status' => 'paid']);
-            }
-
-            return response()->json(['status' => 'success']);
-
-        } catch (\Exception $e) {
-            Log::error('MMPay Webhook Error: ' . $e->getMessage());
-            return response()->json(['message' => 'Server Error'], 500);
-        }
+        return response()->json(['received' => true], 200);
     }
 }
 ```
-
-#### Parameters: `verifyCb`
-
-| Parameter | Type | Description |
-| :--- | :--- | :--- |
-| `payload` | `string` | The **raw, unmodified** JSON string body of the request. |
-| `nonce` | `string` | Value of the `X-Mmpay-Nonce` header. |
-| `expectedSignature` | `string` | Value of the `X-Mmpay-Signature` header. |
 
 ---
 
 ## ⚠️ Error Handling
 
-The SDK throws standard PHP `\Exception` when errors occur (e.g., network issues, API validation errors, or handshake failures).
+The mmpayx throws standard PHP `\Exception` when errors occur (e.g., network issues, API validation errors, or handshake failures).
 
 ```php
 try {
@@ -317,7 +336,7 @@ try {
 
 ---
 
-## Error Codes
+## 7. Error Codes
 
 ##### Api Key Layer Authentication [SERVER SDK]
 | Code | Description |
@@ -337,6 +356,17 @@ try {
 | **`BA002`** | `Btoken` one time nonce mismatch |
 | **`BA000`** | Internal Server Error ( Talk to our support immediately fot this ) |
 | **`429`**   | Ratelimit hit only 1000 request / minute allowed |
+
+
+### Response Codes
+
+| Code | Status | Description |
+| :--- | :--- | :--- |
+| **`201`** | Created | Transaction initiated successfully. Response contains QR code URL/details. |
+| **`401`** | Unauthorized | Invalid or missing Publishable Key. |
+| **`400`** | Bad Request | Missing required body fields (validated by schema, if implemented). |
+| **`503`** | Service Unavailable | Upstream payment API failed or is unreachable. |
+| **`500`** | Internal Server Error | General server error during payment initiation. |
 
 
 ---
