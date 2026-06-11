@@ -1,7 +1,8 @@
 {
     "name": "myanmyanpay/mmpay-php-sdk",
-    "version": "1.0.3",
-    "description": "PHP SDK for MyanMyanPay Integration",
+    "version": "1.0.4",
+    "description": "PHP One Time MMQR generation and Payment integration software developement kit created by MyanMyanPay Team",
+    "license": "MIT",
     "type": "library",
     "require": {
         "php": ">=7.4",
